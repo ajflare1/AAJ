@@ -27,9 +27,14 @@ public class Game {
                 System.out.println("Invalid Input. Pleas enter a move like \"E2 E4\"");
                 continue;
             }
-            
+
             String source = positions[0];
             String destination = positions[1];
+
+            if (!source.matches("[A-H][1-8]") || !destination.matches("[A-H][1-8]")) { 
+                System.out.println("Invalid coordinates. Use columns A-H and rows 1-8."); 
+                continue; 
+            } 
         }    
     }
 }
