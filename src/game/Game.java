@@ -37,6 +37,8 @@ public class Game {
             String destination = positions[1];
 
             //Checking to make sure that both inputs are within the chess board
+            //if letter are undercase, Invalid prompt will display
+            //input must be uppercase followed by a number
             if (!source.matches("[A-H][1-8]") || !destination.matches("[A-H][1-8]")) { 
                 System.out.println("Invalid coordinates. Use columns A-H and rows 1-8."); 
                 continue; 
