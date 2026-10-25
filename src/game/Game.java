@@ -12,6 +12,11 @@ public class Game {
      */
     public static void main(String[] args) {
         Board board = new Board();
+        Scanner scanner = new Scanner(System.in);
+
         board.display();
+
+        System.out.print("Enter your move (e.g., E2 E4");
+        String move = scanner.nextLine();
     }
 }
