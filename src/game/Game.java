@@ -1,5 +1,6 @@
 package game;
 import board.Board;
+import java.util.Scanner;
 
 /**
  * The class for starting the chess game
@@ -14,9 +15,21 @@ public class Game {
         Board board = new Board();
         Scanner scanner = new Scanner(System.in);
 
-        board.display();
+        while (true) {
+            board.display();
 
-        System.out.print("Enter your move (e.g., E2 E4");
-        String move = scanner.nextLine();
+            System.out.print("Enter your move (e.g., E2 E4)");
+            String move = scanner.nextLine();
+
+            String[] positions = move.split(" ");
+
+            if (positions.length != 2) {
+                System.out.println("Invalid Input. Pleas enter a move like \"E2 E4\"");
+                continue;
+            }
+            
+            String source = positions[0];
+            String destination = positions[1];
+        }    
     }
 }
