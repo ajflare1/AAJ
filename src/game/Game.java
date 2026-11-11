@@ -1,7 +1,4 @@
 package game;
-import board.Board;
-import java.util.Scanner;
-import board.Board;
 import gui.ChessGUI;
 import javax.swing.SwingUtilities;
 
