@@ -75,20 +75,27 @@ public class Board {
     }
 
     /**
-     * Promotes a pawn to a Queen when it reaches the opposite end of the board
+     * Promotes a pawn to the selected piece when it reaches the opposite end of the board
      */
-    public void promotePawn(Position position) {
+    public void promotePawn(Position position, String choice) {
         Piece piece = board[position.getRow()][position.getColumn()];
 
         if (piece instanceof Pawn) {
             if ((piece.getColor().equals("white") && position.getRow() == 0) ||
                 (piece.getColor().equals("black") && position.getRow() == 7)) {
-                board[position.getRow()][position.getColumn()] =
-                    new Queen(piece.getColor(), position);
+
+                if (choice.equals("Queen")) {
+                    board[position.getRow()][position.getColumn()] = new Queen(piece.getColor(), position);
+                } else if (choice.equals("Rook")) {
+                    board[position.getRow()][position.getColumn()] = new Rook(piece.getColor(), position);
+                } else if (choice.equals("Bishop")) {
+                    board[position.getRow()][position.getColumn()] = new Bishop(piece.getColor(), position);
+                } else if (choice.equals("Knight")) {
+                    board[position.getRow()][position.getColumn()] = new Knight(piece.getColor(), position);
+                }
             }
         }
     }
-
 
     /**
      * Checks whether a square contains a chess piece

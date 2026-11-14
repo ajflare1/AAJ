@@ -1,5 +1,6 @@
 package gui;
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import java.awt.GridLayout;
 import javax.swing.JButton;
@@ -124,12 +125,46 @@ public class ChessGUI extends JFrame {
                         // Moves the selected piece after its destination has been validated
                         if (validMove) {
                             board.movePiece(selectedPosition, destination);
-                            board.promotePawn(destination);
+                            
+                            // Allows the player to choose a piece when promoting a Pawn
+                            if (selectedPiece instanceof Pawn &&
+                                (destination.getRow() == 0 || destination.getRow() == 7)) {
+
+                                String[] choices = {"Queen", "Rook", "Bishop", "Knight"};
+                                String choice = null;
+
+                                while (choice == null) {
+                                    choice = (String) JOptionPane.showInputDialog(
+                                        this,
+                                        "Choose a piece to promote your Pawn to:",
+                                        "Pawn Promotion",
+                                        JOptionPane.QUESTION_MESSAGE,
+                                        null,
+                                        choices,
+                                        choices[0]
+                                    );
+                                }
+                                board.promotePawn(destination, choice);
+                            }
+
                                                         
                             // Updates the chess piece images after a valid move
                             squares[destination.getRow()][destination.getColumn()].setIcon(
                             squares[selectedPosition.getRow()][selectedPosition.getColumn()].getIcon());
                             squares[selectedPosition.getRow()][selectedPosition.getColumn()].setIcon(null);
+
+                            // Updates the image to match the selected promotion piece
+                            Piece promotedPiece = board.getPiece(destination.getRow(), destination.getColumn());
+
+                            if (selectedPiece instanceof Pawn && promotedPiece != selectedPiece) {
+                                String color = promotedPiece.getColor();
+                                String pieceName = promotedPiece.getClass().getSimpleName().toLowerCase();
+
+                                ImageIcon promotedImage = new ImageIcon("images/" + color + "_" + pieceName + ".png");
+                                Image resizedImage = promotedImage.getImage().getScaledInstance(60, 60, Image.SCALE_SMOOTH);
+
+                                squares[destination.getRow()][destination.getColumn()].setIcon(new ImageIcon(resizedImage));
+                            }
 
                             // Updates the image when a Pawn is promoted to a Queen
                             if (selectedPiece instanceof Pawn && board.getPiece(destination.getRow(), destination.getColumn()) instanceof Queen) {
