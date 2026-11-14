@@ -124,12 +124,23 @@ public class ChessGUI extends JFrame {
                         // Moves the selected piece after its destination has been validated
                         if (validMove) {
                             board.movePiece(selectedPosition, destination);
+                            board.promotePawn(destination);
                                                         
                             // Updates the chess piece images after a valid move
                             squares[destination.getRow()][destination.getColumn()].setIcon(
                             squares[selectedPosition.getRow()][selectedPosition.getColumn()].getIcon());
                             squares[selectedPosition.getRow()][selectedPosition.getColumn()].setIcon(null);
 
+                            // Updates the image when a Pawn is promoted to a Queen
+                            if (selectedPiece instanceof Pawn && board.getPiece(destination.getRow(), destination.getColumn()) instanceof Queen) {
+                                String color = selectedPiece.getColor();
+                                ImageIcon queenImage = new ImageIcon("images/" + color + "_queen.png");
+                                Image resizedQueen = queenImage.getImage().getScaledInstance(60, 60, Image.SCALE_SMOOTH);
+                                squares[destination.getRow()][destination.getColumn()].setIcon(new ImageIcon(resizedQueen));
+                            }
+
+                            // Switches turns after a successful move
+                            currentTurn = currentTurn.equals("white") ? "black" : "white";
 
                             selectedPiece = null;
                             selectedPosition = null;

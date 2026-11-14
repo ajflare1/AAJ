@@ -37,6 +37,17 @@ public class Pawn extends Piece {
             moves.add(new Position(row + (2 * direction), column));
         }
 
+        // Adds the two diagonal positions where a pawn can capture
+        if (nextRow >= 0 && nextRow < 8) {
+            if (column > 0) {
+                moves.add(new Position(nextRow, column - 1));
+            }
+
+            if (column < 7) {
+                moves.add(new Position(nextRow, column + 1));
+            }
+        }
+        
         return moves;
     } 
 

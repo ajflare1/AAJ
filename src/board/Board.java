@@ -75,6 +75,22 @@ public class Board {
     }
 
     /**
+     * Promotes a pawn to a Queen when it reaches the opposite end of the board
+     */
+    public void promotePawn(Position position) {
+        Piece piece = board[position.getRow()][position.getColumn()];
+
+        if (piece instanceof Pawn) {
+            if ((piece.getColor().equals("white") && position.getRow() == 0) ||
+                (piece.getColor().equals("black") && position.getRow() == 7)) {
+                board[position.getRow()][position.getColumn()] =
+                    new Queen(piece.getColor(), position);
+            }
+        }
+    }
+
+
+    /**
      * Checks whether a square contains a chess piece
      */
     public boolean isOccupied(int row, int column) {
