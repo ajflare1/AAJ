@@ -1,5 +1,4 @@
 package board;
-
 import pieces.*;
 
 /**
@@ -54,6 +53,46 @@ public class Board {
         board[7][5] = new Bishop("white", new Position(7, 5));
         board[7][6] = new Knight("white", new Position(7, 6));
         board[7][7] = new Rook("white", new Position(7, 7));
+    }
+
+    /**
+     * Returns the chess piece at the given row and column
+     */
+    public Piece getPiece(int row, int column) { 
+        return board[row][column]; 
+    }
+
+    /**
+     * Checks whether a square contains a chess piece
+     */
+    public boolean isOccupied(int row, int column) {
+        return board[row][column] != null;
+    }
+
+    /**
+     * Checks whether any pieces are blocking the path between two positions
+     */
+    public boolean isPathClear(Position start, Position end) {
+        int rowDifference = end.getRow() - start.getRow();
+        int columnDifference = end.getColumn() - start.getColumn();
+
+        int rowStep = Integer.compare(rowDifference, 0);
+        int columnStep = Integer.compare(columnDifference, 0);
+
+        int row = start.getRow() + rowStep;
+        int column = start.getColumn() + columnStep;
+
+        // Checks each square between the starting and ending positions
+        while (row != end.getRow() || column != end.getColumn()) {
+            if (isOccupied(row, column)) {
+                return false;
+            }
+
+            row += rowStep;
+            column += columnStep;
+        }
+
+        return true;
     }
 
     /**

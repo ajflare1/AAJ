@@ -6,11 +6,24 @@ import javax.swing.JButton;
 import java.awt.Color;
 import javax.swing.ImageIcon;
 import java.awt.Image;
+import board.Board;
+import pieces.Piece;
+import board.Position;
+import java.util.List;
+import pieces.Rook;
+import pieces.Bishop;
+import pieces.Queen;
+import pieces.Pawn;
 
 /**
  * Creates the window for the chess game
  */
 public class ChessGUI extends JFrame {
+    private Board board;
+    private JButton[][] squares = new JButton[8][8];
+    private String currentTurn = "white";
+    private Piece selectedPiece = null;
+    private Position selectedPosition = null;
 
     /**
      * Initializes the chess game window
@@ -20,6 +33,8 @@ public class ChessGUI extends JFrame {
         setSize(700, 700);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
+
+        board = new Board();
 
         // Loading the chesspiece images
         ImageIcon whiteKing = new ImageIcon("images/white_king.png");
@@ -43,6 +58,73 @@ public class ChessGUI extends JFrame {
         for (int row = 0; row < 8; row++) {
             for (int column = 0; column < 8; column++) {
                 JButton square = new JButton();
+                squares[row][column] = square;
+
+                final int selectedRow = row;
+                final int selectedColumn = column;
+
+                // Selects a piece only if it belongs to the player
+                square.addActionListener(e -> {
+                    Piece clickedPiece = board.getPiece(selectedRow, selectedColumn);
+
+                    if (clickedPiece != null && clickedPiece.getColor().equals(currentTurn)) {
+                        selectedPiece = clickedPiece;
+                        selectedPosition = clickedPiece.getPosition();
+                    } else if (selectedPiece != null) { 
+                        // Handles the destination square after a piece has been selected 
+                        Position destination = new Position(selectedRow, selectedColumn); 
+
+                        // Checks whether the selected piece can move to the destination
+                        boolean validMove = false;
+                        List<Position> moves = selectedPiece.possibleMoves();
+
+                        for (Position move : moves) {
+                            if (move.getRow() == destination.getRow() &&
+                                move.getColumn() == destination.getColumn()) {
+                                validMove = true;
+                                break;
+                            }
+                        }
+                        // Prevents a piece from moving onto a square occupied by a friendly piece
+                        if (validMove && clickedPiece != null &&
+                            clickedPiece.getColor().equals(currentTurn)) {
+                            validMove = false;
+                        }
+                        // Checks whether the path is clear for pieces that cannot jump
+                        if (validMove && (selectedPiece instanceof Rook ||
+                                        selectedPiece instanceof Bishop ||
+                                        selectedPiece instanceof Queen)) {
+                            if (!board.isPathClear(selectedPosition, destination)) {
+                                validMove = false;
+                            }
+                        }
+                        // Checks whether a pawn is moving forward or capturing diagonally
+                        if (validMove && selectedPiece instanceof Pawn) {
+                            int columnDifference = Math.abs(destination.getColumn() - selectedPosition.getColumn());
+
+                            if (columnDifference == 0) {
+                                if (clickedPiece != null) {
+                                    validMove = false;
+                                }
+                            } else if (columnDifference == 1) {
+                                if (clickedPiece == null || clickedPiece.getColor().equals(currentTurn)) {
+                                    validMove = false;
+                                }
+                            }
+                        }
+                        // Checks whether a pawn's two-square move is blocked
+                        if (validMove && selectedPiece instanceof Pawn &&
+                            Math.abs(destination.getRow() - selectedPosition.getRow()) == 2) {
+                            int middleRow = (selectedPosition.getRow() + destination.getRow()) / 2;
+
+                            if (board.isOccupied(middleRow, selectedPosition.getColumn())) {
+                                validMove = false;
+                            }
+                        }
+                    } 
+                });
+
+                Piece piece = board.getPiece(row, column);
 
                 // Alternates light and green squares
                 if ((row + column) % 2 == 0) {

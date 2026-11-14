@@ -24,8 +24,8 @@ public class Pawn extends Piece {
         int row = getPosition().getRow();
         int column = getPosition().getColumn();
 
-        int direction = getColor().equals("White") ? -1 : 1;
-        int startingRow = getColor().equals("White") ? 6 : 1;
+        int direction = getColor().equals("white") ? -1 : 1;
+        int startingRow = getColor().equals("white") ? 6 : 1;
 
         int nextRow = row + direction;
 
