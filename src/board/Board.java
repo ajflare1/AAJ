@@ -63,6 +63,18 @@ public class Board {
     }
 
     /**
+     * Moves a chess piece from its starting position to its destination
+     */
+    public void movePiece(Position start, Position end) {
+        Piece piece = board[start.getRow()][start.getColumn()];
+
+        board[end.getRow()][end.getColumn()] = piece;
+        board[start.getRow()][start.getColumn()] = null;
+
+        piece.move(end);
+    }
+
+    /**
      * Checks whether a square contains a chess piece
      */
     public boolean isOccupied(int row, int column) {

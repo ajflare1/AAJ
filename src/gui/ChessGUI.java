@@ -121,6 +121,19 @@ public class ChessGUI extends JFrame {
                                 validMove = false;
                             }
                         }
+                        // Moves the selected piece after its destination has been validated
+                        if (validMove) {
+                            board.movePiece(selectedPosition, destination);
+                                                        
+                            // Updates the chess piece images after a valid move
+                            squares[destination.getRow()][destination.getColumn()].setIcon(
+                            squares[selectedPosition.getRow()][selectedPosition.getColumn()].getIcon());
+                            squares[selectedPosition.getRow()][selectedPosition.getColumn()].setIcon(null);
+
+
+                            selectedPiece = null;
+                            selectedPosition = null;
+                        }
                     } 
                 });
 
