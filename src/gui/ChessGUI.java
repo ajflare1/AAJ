@@ -2,11 +2,13 @@ package gui;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JLabel;
 import java.awt.GridLayout;
 import javax.swing.JButton;
 import java.awt.Color;
 import javax.swing.ImageIcon;
 import java.awt.Image;
+import java.awt.BorderLayout;
 import board.Board;
 import pieces.Piece;
 import board.Position;
@@ -23,6 +25,7 @@ public class ChessGUI extends JFrame {
     private Board board;
     private JButton[][] squares = new JButton[8][8];
     private String currentTurn = "white";
+    private JLabel turnLabel;
     private Piece selectedPiece = null;
     private Position selectedPosition = null;
 
@@ -36,6 +39,11 @@ public class ChessGUI extends JFrame {
         setLocationRelativeTo(null);
 
         board = new Board();
+
+        setLayout(new BorderLayout());
+        // Displays which player's turn it is
+        turnLabel = new JLabel("WHITE'S TURN", JLabel.CENTER);
+        add(turnLabel, BorderLayout.NORTH);
 
         // Loading the chesspiece images
         ImageIcon whiteKing = new ImageIcon("images/white_king.png");
@@ -176,6 +184,19 @@ public class ChessGUI extends JFrame {
 
                             // Switches turns after a successful move
                             currentTurn = currentTurn.equals("white") ? "black" : "white";
+                            
+                            // Updates the turn indicator after each successful move
+                            turnLabel.setText(currentTurn.toUpperCase() + "'S TURN");
+
+                            // Notifies the next player if their King is in check
+                            if (board.isInCheck(currentTurn)) {
+                                JOptionPane.showMessageDialog(
+                                    this,
+                                    currentTurn.toUpperCase() + " King is in CHECK!",
+                                    "Check",
+                                    JOptionPane.WARNING_MESSAGE
+                                );
+                            }
 
                             selectedPiece = null;
                             selectedPosition = null;

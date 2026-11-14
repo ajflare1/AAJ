@@ -63,6 +63,71 @@ public class Board {
     }
 
     /**
+     * Finds the position of the King belonging to the given color
+     */
+    public Position findKing(String color) {
+        for (int row = 0; row < 8; row++) {
+            for (int column = 0; column < 8; column++) {
+                Piece piece = board[row][column];
+
+                if (piece instanceof King && piece.getColor().equals(color)) {
+                    return piece.getPosition();
+                }
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Checks whether the King of the given color is in check
+     */
+    public boolean isInCheck(String color) {
+        Position kingPosition = findKing(color);
+
+        if (kingPosition == null) {
+            return false;
+        }
+
+        for (int row = 0; row < 8; row++) {
+            for (int column = 0; column < 8; column++) {
+                Piece piece = board[row][column];
+
+                if (piece != null && !piece.getColor().equals(color)) {
+
+                    if (piece instanceof Pawn) {
+                        int direction = piece.getColor().equals("white") ? -1 : 1;
+
+                        if (kingPosition.getRow() == row + direction &&
+                            Math.abs(kingPosition.getColumn() - column) == 1) {
+                            return true;
+                        }
+                    } else {
+                        for (Position move : piece.possibleMoves()) {
+                            if (move.getRow() == kingPosition.getRow() &&
+                                move.getColumn() == kingPosition.getColumn()) {
+
+                                if (piece instanceof Rook ||
+                                    piece instanceof Bishop ||
+                                    piece instanceof Queen) {
+
+                                    if (isPathClear(piece.getPosition(), kingPosition)) {
+                                        return true;
+                                    }
+                                } else {
+                                    return true;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
+
+    /**
      * Moves a chess piece from its starting position to its destination
      */
     public void movePiece(Position start, Position end) {
