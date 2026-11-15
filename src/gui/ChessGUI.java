@@ -28,6 +28,7 @@ public class ChessGUI extends JFrame {
     private JLabel turnLabel;
     private Piece selectedPiece = null;
     private Position selectedPosition = null;
+    private boolean gameOver = false;
 
     /**
      * Initializes the chess game window
@@ -74,6 +75,9 @@ public class ChessGUI extends JFrame {
 
                 // Selects a piece only if it belongs to the player
                 square.addActionListener(e -> {
+                    if (gameOver) {
+                        return;
+                    }
                     Piece clickedPiece = board.getPiece(selectedRow, selectedColumn);
 
                     if (clickedPiece != null && clickedPiece.getColor().equals(currentTurn)) {
@@ -200,8 +204,17 @@ public class ChessGUI extends JFrame {
                             // Updates the turn indicator after each successful move
                             turnLabel.setText(currentTurn.toUpperCase() + "'S TURN");
 
-                            // Notifies the next player if their King is in check
-                            if (board.isInCheck(currentTurn)) {
+                       
+                            // Ends the game when the opposing King is in checkmate 
+                            if (board.isCheckmate(currentTurn)) { 
+                                gameOver = true; 
+
+                                String winner = currentTurn.equals("white") ? "BLACK" : "WHITE"; 
+
+                                JOptionPane.showMessageDialog(this, "CHECKMATE! " + winner + " WINS!", "Game Over", 
+                                    JOptionPane.INFORMATION_MESSAGE 
+                                ); 
+                            } else if (board.isInCheck(currentTurn)) { 
                                 JOptionPane.showMessageDialog(
                                     this,
                                     currentTurn.toUpperCase() + " King is in CHECK!",

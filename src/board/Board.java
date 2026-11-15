@@ -149,6 +149,109 @@ public class Board {
     }
 
     /**
+     * Checks whether a chess piece can legally move to a destination
+     */
+    public boolean isLegalMove(Position start, Position end) {
+        Piece piece = board[start.getRow()][start.getColumn()];
+        Piece destinationPiece = board[end.getRow()][end.getColumn()];
+
+        if (piece == null) {
+            return false;
+        }
+
+        // Checks whether the destination is a possible move
+        boolean validMove = false;
+
+        for (Position move : piece.possibleMoves()) {
+            if (move.getRow() == end.getRow() &&
+                move.getColumn() == end.getColumn()) {
+                validMove = true;
+                break;
+            }
+        }
+
+        if (!validMove) {
+            return false;
+        }
+
+        // Prevents capturing a friendly piece or the opposing King
+        if (destinationPiece != null) {
+            if (destinationPiece.getColor().equals(piece.getColor()) ||
+                destinationPiece instanceof King) {
+                return false;
+            }
+        }
+
+        // Checks whether the path is clear
+        if (piece instanceof Rook ||
+            piece instanceof Bishop ||
+            piece instanceof Queen) {
+
+            if (!isPathClear(start, end)) {
+                return false;
+            }
+        }
+
+        // Checks the Pawn's movement and capturing rules
+        if (piece instanceof Pawn) {
+            int columnDifference = Math.abs(end.getColumn() - start.getColumn());
+
+            if (columnDifference == 0) {
+                if (destinationPiece != null) {
+                    return false;
+                }
+            } else if (columnDifference == 1) {
+                if (destinationPiece == null) {
+                    return false;
+                }
+            }
+
+            if (Math.abs(end.getRow() - start.getRow()) == 2) {
+                int middleRow = (start.getRow() + end.getRow()) / 2;
+
+                if (isOccupied(middleRow, start.getColumn())) {
+                    return false;
+                }
+            }
+        }
+
+        // Prevents moves that leave the player's King in check
+        if (wouldLeaveKingInCheck(start, end)) {
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * Checks whether the King of the given color is in checkmate
+     */
+    public boolean isCheckmate(String color) {
+        if (!isInCheck(color)) {
+            return false;
+        }
+
+        // Checks whether any piece can make a legal move
+        for (int row = 0; row < 8; row++) {
+            for (int column = 0; column < 8; column++) {
+                Piece piece = board[row][column];
+
+                if (piece != null && piece.getColor().equals(color)) {
+                    Position start = piece.getPosition();
+
+                    for (Position end : piece.possibleMoves()) {
+                        if (isLegalMove(start, end)) {
+                            return false;
+                        }
+                    }
+                }
+            }
+        }
+
+        return true;
+    }
+
+    /**
      * Moves a chess piece from its starting position to its destination
      */
     public void movePiece(Position start, Position end) {
