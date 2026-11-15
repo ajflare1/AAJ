@@ -126,6 +126,27 @@ public class Board {
         return false;
     }
 
+    /**
+     * Checks whether a move would leave the player's King in check
+     */
+    public boolean wouldLeaveKingInCheck(Position start, Position end) {
+        Piece piece = board[start.getRow()][start.getColumn()];
+        Piece capturedPiece = board[end.getRow()][end.getColumn()];
+
+        // Temporarily moves the piece
+        board[end.getRow()][end.getColumn()] = piece;
+        board[start.getRow()][start.getColumn()] = null;
+        piece.move(end);
+
+        boolean kingInCheck = isInCheck(piece.getColor());
+
+        // Restores the pieces to their original positions
+        board[start.getRow()][start.getColumn()] = piece;
+        board[end.getRow()][end.getColumn()] = capturedPiece;
+        piece.move(start);
+
+        return kingInCheck;
+    }
 
     /**
      * Moves a chess piece from its starting position to its destination

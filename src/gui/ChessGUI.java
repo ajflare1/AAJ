@@ -130,6 +130,18 @@ public class ChessGUI extends JFrame {
                                 validMove = false;
                             }
                         }
+                        
+                        // Prevents moves that leave the player's King in check
+                        if (validMove && board.wouldLeaveKingInCheck(selectedPosition, destination)) {
+                            JOptionPane.showMessageDialog(
+                                this,
+                                "Invalid move! Your King would be in CHECK!",
+                                "Invalid Move",
+                                JOptionPane.WARNING_MESSAGE
+                            );
+                            validMove = false;
+                        }
+
                         // Moves the selected piece after its destination has been validated
                         if (validMove) {
                             board.movePiece(selectedPosition, destination);
@@ -184,7 +196,7 @@ public class ChessGUI extends JFrame {
 
                             // Switches turns after a successful move
                             currentTurn = currentTurn.equals("white") ? "black" : "white";
-                            
+
                             // Updates the turn indicator after each successful move
                             turnLabel.setText(currentTurn.toUpperCase() + "'S TURN");
 
