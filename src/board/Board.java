@@ -11,6 +11,10 @@ public class Board {
      */
     private Piece[][] board;
 
+    // Stores the starting and ending positions of the previous move
+    private Position lastMoveStart;
+    private Position lastMoveEnd;
+
     /**
      * Creating the chessboard and placing the pieces
      */
@@ -133,6 +137,14 @@ public class Board {
         Piece piece = board[start.getRow()][start.getColumn()];
         Piece capturedPiece = board[end.getRow()][end.getColumn()];
 
+        // Finds the Pawn captured by en passant
+        Piece enPassantPawn = null;
+
+        if (canEnPassant(start, end)) {
+            enPassantPawn = board[start.getRow()][end.getColumn()];
+            board[start.getRow()][end.getColumn()] = null;
+        }
+
         // Temporarily moves the piece
         board[end.getRow()][end.getColumn()] = piece;
         board[start.getRow()][start.getColumn()] = null;
@@ -144,6 +156,11 @@ public class Board {
         board[start.getRow()][start.getColumn()] = piece;
         board[end.getRow()][end.getColumn()] = capturedPiece;
         piece.move(start);
+
+        // Restores the Pawn removed during the en passant check
+        if (enPassantPawn != null) {
+            board[start.getRow()][end.getColumn()] = enPassantPawn;
+        }
 
         return kingInCheck;
     }
@@ -194,6 +211,45 @@ public class Board {
         }
 
         return true;
+    }
+
+    /**
+     * Checks whether a Pawn can capture using en passant
+     */
+    public boolean canEnPassant(Position start, Position end) {
+        Piece pawn = board[start.getRow()][start.getColumn()];
+
+        // Checks that the moving piece is a Pawn
+        if (!(pawn instanceof Pawn)) {
+            return false;
+        }
+
+        // Checks that a previous move exists
+        if (lastMoveStart == null || lastMoveEnd == null) {
+            return false;
+        }
+
+        Piece lastPiece = board[lastMoveEnd.getRow()][lastMoveEnd.getColumn()];
+
+        // Checks that the previous move was an opposing Pawn moving two squares
+        if (!(lastPiece instanceof Pawn) ||
+            lastPiece.getColor().equals(pawn.getColor()) ||
+            Math.abs(lastMoveEnd.getRow() - lastMoveStart.getRow()) != 2) {
+            return false;
+        }
+
+        // Checks that the opposing Pawn is directly beside the moving Pawn
+        if (lastMoveEnd.getRow() != start.getRow() ||
+            Math.abs(lastMoveEnd.getColumn() - start.getColumn()) != 1) {
+            return false;
+        }
+
+        // Checks that the Pawn moves diagonally forward to an empty square
+        int direction = pawn.getColor().equals("white") ? -1 : 1;
+
+        return end.getRow() == start.getRow() + direction &&
+            end.getColumn() == lastMoveEnd.getColumn() &&
+            board[end.getRow()][end.getColumn()] == null;
     }
 
     /**
@@ -258,7 +314,8 @@ public class Board {
                     return false;
                 }
             } else if (columnDifference == 1) {
-                if (destinationPiece == null) {
+                // Allows a diagonal move to an empty square only for En Passant
+                if (destinationPiece == null && !canEnPassant(start, end)) {
                     return false;
                 }
             }
@@ -342,6 +399,11 @@ public class Board {
      */
     public void movePiece(Position start, Position end) {
         Piece piece = board[start.getRow()][start.getColumn()];
+        
+        // Removes the opposing Pawn when capturing with en passant
+        if (canEnPassant(start, end)) {
+            board[start.getRow()][end.getColumn()] = null;
+        }
 
         board[end.getRow()][end.getColumn()] = piece;
         board[start.getRow()][start.getColumn()] = null;
@@ -365,6 +427,22 @@ public class Board {
             rook.move(new Position(row, rookEndColumn));
             rook.setHasMoved(true);
         }
+        // Records the starting and ending positions of the move
+        lastMoveStart = start;
+        lastMoveEnd = end;
+    }
+    /**
+     * Returns the starting position of the previous move
+     */
+    public Position getLastMoveStart() {
+        return lastMoveStart;
+    }
+
+    /**
+     * Returns the ending position of the previous move
+     */
+    public Position getLastMoveEnd() {
+        return lastMoveEnd;
     }
 
     /**

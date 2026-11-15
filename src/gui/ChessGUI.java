@@ -10,14 +10,10 @@ import javax.swing.ImageIcon;
 import java.awt.Image;
 import java.awt.BorderLayout;
 import board.Board;
-import pieces.Piece;
 import board.Position;
 import java.util.List;
-import pieces.Rook;
-import pieces.Bishop;
-import pieces.Queen;
-import pieces.Pawn;
-import pieces.King;
+import pieces.*;
+
 
 /**
  * Creates the window for the chess game
@@ -121,7 +117,8 @@ public class ChessGUI extends JFrame {
                                     validMove = false;
                                 }
                             } else if (columnDifference == 1) {
-                                if (clickedPiece == null || clickedPiece.getColor().equals(currentTurn)) {
+                                //Allows a diagonal move to an empty square only for En Passant
+                                if (clickedPiece == null && !board.canEnPassant(selectedPosition, destination)) {
                                     validMove = false;
                                 }
                             }
@@ -158,6 +155,11 @@ public class ChessGUI extends JFrame {
 
                         // Moves the selected piece after its destination has been validated
                         if (validMove) {
+                            // Removes the captured Pawn's image when using en passant
+                            if (board.canEnPassant(selectedPosition, destination)) {
+                                squares[selectedPosition.getRow()][destination.getColumn()].setIcon(null);
+                            }
+                            
                             board.movePiece(selectedPosition, destination);
                             
                             // Allows the player to choose a piece when promoting a Pawn
