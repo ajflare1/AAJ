@@ -1,16 +1,7 @@
 package gui;
-import javax.swing.JFrame;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JLabel;
-import java.awt.GridLayout;
-import javax.swing.JButton;
-import java.awt.Color;
-import javax.swing.ImageIcon;
-import java.awt.Image;
-import java.awt.BorderLayout;
-import board.Board;
-import board.Position;
+import javax.swing.*;
+import java.awt.*;
+import board.*;
 import java.util.List;
 import pieces.*;
 
@@ -41,7 +32,35 @@ public class ChessGUI extends JFrame {
         setLayout(new BorderLayout());
         // Displays which player's turn it is
         turnLabel = new JLabel("WHITE'S TURN", JLabel.CENTER);
-        add(turnLabel, BorderLayout.NORTH);
+
+        // Makes the player turn label larger and bold
+        turnLabel.setFont(new Font("Arial", Font.BOLD, 24));
+
+        // Creates a rounded box for the player turn label
+        JPanel turnBox = new JPanel(new BorderLayout()) {
+            @Override
+            protected void paintComponent(Graphics g) {
+                super.paintComponent(g);
+
+                Graphics2D g2 = (Graphics2D) g;
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
+                                    RenderingHints.VALUE_ANTIALIAS_ON);
+                g2.setColor(new Color(220, 220, 220));
+                g2.fillRoundRect(0, 0, getWidth(), getHeight(), 20, 20);
+            }
+        };
+
+        turnBox.setOpaque(false);
+        turnLabel.setOpaque(false);
+        turnBox.add(turnLabel, BorderLayout.CENTER);
+
+        // Sets the size of the rounded turn box
+        turnBox.setPreferredSize(new Dimension(220, 45));
+
+        // Centers the rounded box above the chessboard
+        JPanel turnPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 10));
+        turnPanel.add(turnBox);
+        add(turnPanel, BorderLayout.NORTH);
 
         // Loading the chesspiece images
         ImageIcon whiteKing = new ImageIcon("images/white_king.png");
@@ -159,7 +178,7 @@ public class ChessGUI extends JFrame {
                             if (board.canEnPassant(selectedPosition, destination)) {
                                 squares[selectedPosition.getRow()][destination.getColumn()].setIcon(null);
                             }
-                            
+
                             board.movePiece(selectedPosition, destination);
                             
                             // Allows the player to choose a piece when promoting a Pawn
@@ -362,7 +381,90 @@ public class ChessGUI extends JFrame {
                 }
             }
         }
+        // Creates a panel to hold the chessboard and its coordinates
+        JPanel boardPanel = new JPanel();
 
-        add(chessboard);
+        // Adds space around the chessboard and its coordinates
+        boardPanel.setBorder(BorderFactory.createEmptyBorder(50, 50, 50, 50));
+
+        // Creates the row numbers along the left side
+        JPanel rowLabels = new JPanel(new GridLayout(8, 1));
+
+        for (int row = 8; row >= 1; row--) {
+            JLabel label = new JLabel("" + row, JLabel.CENTER);
+            label.setFont(new Font("Arial", Font.BOLD, 16));
+            rowLabels.add(label);
+        }
+
+        // Creates the column letters along the bottom
+        JPanel columnLabels = new JPanel(new GridLayout(1, 8));
+
+        for (char column = 'A'; column <= 'H'; column++) {
+            JLabel label = new JLabel("" + column, JLabel.CENTER);
+            label.setFont(new Font("Arial", Font.BOLD, 16));
+            columnLabels.add(label);
+        }
+
+        // Creates space beneath the row numbers to align the column letters
+        JPanel columnPanel = new JPanel(new BorderLayout());
+        JPanel corner = new JPanel();
+        corner.setPreferredSize(new Dimension(rowLabels.getPreferredSize().width, 0));
+
+        columnPanel.add(corner, BorderLayout.WEST);
+        columnPanel.add(columnLabels, BorderLayout.CENTER);
+
+        // Keeps the chessboard square when resizing the window
+        boardPanel.setLayout(new LayoutManager() {
+            @Override
+            public void addLayoutComponent(String name, Component component) {
+            }
+
+            @Override
+            public void removeLayoutComponent(Component component) {
+            }
+
+            @Override
+            public Dimension preferredLayoutSize(Container parent) {
+                return new Dimension(700, 700);
+            }
+
+            @Override
+            public Dimension minimumLayoutSize(Container parent) {
+                return new Dimension(200, 200);
+            }
+
+            @Override
+            public void layoutContainer(Container parent) {
+                Insets insets = parent.getInsets();
+
+                int rowWidth = rowLabels.getPreferredSize().width;
+                int columnHeight = columnLabels.getPreferredSize().height;
+
+                int availableWidth = parent.getWidth() - insets.left - insets.right;
+                int availableHeight = parent.getHeight() - insets.top - insets.bottom;
+
+                int boardSize = Math.max(0, Math.min(
+                    availableWidth - rowWidth,
+                    availableHeight - columnHeight
+                ));
+
+                // Centers the chessboard and its coordinates
+                int x = insets.left + (availableWidth - rowWidth - boardSize) / 2;
+                int y = insets.top + (availableHeight - columnHeight - boardSize) / 2;
+
+                // Positions the coordinates and chessboard
+                rowLabels.setBounds(x, y, rowWidth, boardSize);
+                chessboard.setBounds(x + rowWidth, y, boardSize, boardSize);
+                columnPanel.setBounds(x, y + boardSize, rowWidth + boardSize, columnHeight);
+            }
+        });
+
+        // Adds the coordinates and chessboard to the panel
+        boardPanel.add(rowLabels);
+        boardPanel.add(columnPanel);
+        boardPanel.add(chessboard);
+
+        // Adds the chessboard and the coordinates to the center of the window
+        add(boardPanel, BorderLayout.CENTER);
     }
 }
