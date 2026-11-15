@@ -50,6 +50,14 @@ public class King extends Piece {
                 moves.add(new Position(newRow, newColumn));
             }
         }
+
+        // Adds possible castling moves if the King has not moved
+        if (!hasMoved() && column == 4 && 
+            (row == 0 || row == 7)) {
+            moves.add(new Position(row, 2));
+            moves.add(new Position(row, 6));
+        }
+        
         return moves;
     }
 }

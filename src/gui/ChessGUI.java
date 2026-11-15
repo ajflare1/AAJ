@@ -17,6 +17,7 @@ import pieces.Rook;
 import pieces.Bishop;
 import pieces.Queen;
 import pieces.Pawn;
+import pieces.King;
 
 /**
  * Creates the window for the chess game
@@ -134,6 +135,15 @@ public class ChessGUI extends JFrame {
                                 validMove = false;
                             }
                         }
+
+                        // Checks whether the King can legally castle
+                        if (validMove && selectedPiece instanceof King &&
+                            Math.abs(destination.getColumn() - selectedPosition.getColumn()) == 2) {
+
+                            if (!board.canCastle(selectedPosition, destination)) {
+                                validMove = false;
+                            }
+                        }
                         
                         // Prevents moves that leave the player's King in check
                         if (validMove && board.wouldLeaveKingInCheck(selectedPosition, destination)) {
@@ -176,6 +186,18 @@ public class ChessGUI extends JFrame {
                             squares[destination.getRow()][destination.getColumn()].setIcon(
                             squares[selectedPosition.getRow()][selectedPosition.getColumn()].getIcon());
                             squares[selectedPosition.getRow()][selectedPosition.getColumn()].setIcon(null);
+
+                            // Updates the Rook's image when the King castles
+                            if (selectedPiece instanceof King &&
+                                Math.abs(destination.getColumn() - selectedPosition.getColumn()) == 2) {
+
+                                int castleRow = selectedPosition.getRow();
+                                int rookStartColumn = destination.getColumn() > selectedPosition.getColumn() ? 7 : 0;
+                                int rookEndColumn = destination.getColumn() > selectedPosition.getColumn() ? 5 : 3;
+
+                                squares[castleRow][rookEndColumn].setIcon(squares[castleRow][rookStartColumn].getIcon());
+                                squares[castleRow][rookStartColumn].setIcon(null);
+                            }
 
                             // Updates the image to match the selected promotion piece
                             Piece promotedPiece = board.getPiece(destination.getRow(), destination.getColumn());

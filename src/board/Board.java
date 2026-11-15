@@ -149,6 +149,54 @@ public class Board {
     }
 
     /**
+     * Checks whether the King can castle in the chosen direction
+     */
+    public boolean canCastle(Position start, Position end) {
+        Piece king = board[start.getRow()][start.getColumn()];
+
+        if (!(king instanceof King) || king.hasMoved()) {
+            return false;
+        }
+
+        int row = start.getRow();
+        int direction = end.getColumn() > start.getColumn() ? 1 : -1;
+        int rookColumn = direction == 1 ? 7 : 0;
+
+        Piece rook = board[row][rookColumn];
+
+        // Checks whether the Rook is eligible for castling
+        if (!(rook instanceof Rook) ||
+            !rook.getColor().equals(king.getColor()) ||
+            rook.hasMoved()) {
+            return false;
+        }
+
+        // Checks whether any pieces are between the King and Rook
+        if (!isPathClear(start, new Position(row, rookColumn))) {
+            return false;
+        }
+
+        // Prevents castling while the King is in check
+        if (isInCheck(king.getColor())) {
+            return false;
+        }
+
+        // Checks whether the King passes through an attacked square
+        Position middle = new Position(row, start.getColumn() + direction);
+
+        if (wouldLeaveKingInCheck(start, middle)) {
+            return false;
+        }
+
+        // Checks whether the King's destination is safe
+        if (wouldLeaveKingInCheck(start, end)) {
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
      * Checks whether a chess piece can legally move to a destination
      */
     public boolean isLegalMove(Position start, Position end) {
@@ -172,6 +220,15 @@ public class Board {
 
         if (!validMove) {
             return false;
+        }
+
+        // Checks whether a King's two-square move is a legal castle
+        if (piece instanceof King &&
+            Math.abs(end.getColumn() - start.getColumn()) == 2) {
+
+            if (!canCastle(start, end)) {
+                return false;
+            }
         }
 
         // Prevents capturing a friendly piece or the opposing King
@@ -290,6 +347,24 @@ public class Board {
         board[start.getRow()][start.getColumn()] = null;
 
         piece.move(end);
+        piece.setHasMoved(true);
+
+        // Moves the Rook automatically when the King castles
+        if (piece instanceof King &&
+            Math.abs(end.getColumn() - start.getColumn()) == 2) {
+
+            int row = start.getRow();
+            int rookStartColumn = end.getColumn() > start.getColumn() ? 7 : 0;
+            int rookEndColumn = end.getColumn() > start.getColumn() ? 5 : 3;
+
+            Piece rook = board[row][rookStartColumn];
+
+            board[row][rookEndColumn] = rook;
+            board[row][rookStartColumn] = null;
+
+            rook.move(new Position(row, rookEndColumn));
+            rook.setHasMoved(true);
+        }
     }
 
     /**

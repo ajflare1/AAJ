@@ -11,6 +11,7 @@ public abstract class Piece {
      */
     private final String color;
     private Position position;
+    private boolean hasMoved = false;
 
     /**
      * Creating a chess piece with color and a position
@@ -36,6 +37,21 @@ public abstract class Piece {
      */
     public Position getPosition() {
         return position;
+    }
+
+    /**
+     * Checks whether the chess piece has moved before
+     * @return True if the piece has moved, otherwise false
+     */
+    public boolean hasMoved() {
+        return hasMoved;
+    }
+
+    /**
+     * Updates whether the chess piece has moved
+     */
+    public void setHasMoved(boolean hasMoved) {
+        this.hasMoved = hasMoved;
     }
 
     /**
