@@ -252,6 +252,35 @@ public class Board {
     }
 
     /**
+     * Checks whether the King of the given color is in stalemate
+     */
+    public boolean isStalemate(String color) {
+        if (isInCheck(color)) {
+            return false;
+        }
+
+        // Checks whether any piece can make a legal move
+        for (int row = 0; row < 8; row++) {
+            for (int column = 0; column < 8; column++) {
+                Piece piece = board[row][column];
+
+                if (piece != null && piece.getColor().equals(color)) {
+                    Position start = piece.getPosition();
+
+                    for (Position end : piece.possibleMoves()) {
+                        if (isLegalMove(start, end)) {
+                            return false;
+                        }
+                    }
+                }
+            }
+        }
+
+        return true;
+    }
+
+
+    /**
      * Moves a chess piece from its starting position to its destination
      */
     public void movePiece(Position start, Position end) {

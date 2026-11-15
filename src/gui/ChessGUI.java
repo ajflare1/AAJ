@@ -213,7 +213,17 @@ public class ChessGUI extends JFrame {
 
                                 JOptionPane.showMessageDialog(this, "CHECKMATE! " + winner + " WINS!", "Game Over", 
                                     JOptionPane.INFORMATION_MESSAGE 
-                                ); 
+                                );                                 
+                            } else if (board.isStalemate(currentTurn)) {
+                                // Ends the game in a draw when stalemate occurs
+                                gameOver = true;
+
+                                JOptionPane.showMessageDialog(
+                                    this,
+                                    "STALEMATE! The game is a DRAW!",
+                                    "Game Over",
+                                    JOptionPane.INFORMATION_MESSAGE
+                                );
                             } else if (board.isInCheck(currentTurn)) { 
                                 JOptionPane.showMessageDialog(
                                     this,
