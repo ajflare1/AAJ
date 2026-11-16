@@ -60,6 +60,67 @@ public class Board {
     }
 
     /**
+     * Creates an empty board without placing the starting pieces.
+     * Only used by copy().
+     * @param empty Unused flag that separates this constructor from the public one
+     */
+    private Board(boolean empty) {
+        board = new Piece[8][8];
+    }
+
+    /**
+     * Creates a deep copy of this board, including every piece, whether each
+     * piece has moved, and the last move used for en passant. Used by the
+     * Undo feature to save the game state before each move.
+     * @return A new Board that matches the current state of this board
+     */
+    public Board copy() {
+        Board copy = new Board(false);
+
+        for (int row = 0; row < 8; row++) {
+            for (int column = 0; column < 8; column++) {
+                Piece piece = board[row][column];
+
+                if (piece != null) {
+                    copy.board[row][column] = copyPiece(piece);
+                }
+            }
+        }
+
+        copy.lastMoveStart = lastMoveStart;
+        copy.lastMoveEnd = lastMoveEnd;
+        return copy;
+    }
+
+    /**
+     * Creates a new piece of the same type, color, position, and moved status
+     * @param piece The piece to copy
+     * @return The new copy of the piece
+     */
+    private Piece copyPiece(Piece piece) {
+        String color = piece.getColor();
+        Position position = piece.getPosition();
+        Piece copy;
+
+        if (piece instanceof Pawn) {
+            copy = new Pawn(color, position);
+        } else if (piece instanceof Rook) {
+            copy = new Rook(color, position);
+        } else if (piece instanceof Knight) {
+            copy = new Knight(color, position);
+        } else if (piece instanceof Bishop) {
+            copy = new Bishop(color, position);
+        } else if (piece instanceof Queen) {
+            copy = new Queen(color, position);
+        } else {
+            copy = new King(color, position);
+        }
+
+        copy.setHasMoved(piece.hasMoved());
+        return copy;
+    }
+
+    /**
      * Returns the chess piece at the given row and column
      */
     public Piece getPiece(int row, int column) { 
